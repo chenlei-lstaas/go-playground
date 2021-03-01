@@ -1,0 +1,65 @@
+syntax = "proto3";
+
+package galaxy.voyager.app.fast;
+option go_package = "code.lstaas.com/lightspeed/galaxy/voyager/app/fast;fast";
+
+message CustomConfig {
+  string Listen = 1;
+}
+
+message Rule {
+  string ID = 1; // 规则ID
+  int32 Protocol = 2; // 协议类型
+  // 1：TCP
+  // 2：UDP
+  // 3：BOTH，即该目标地址的TCP、UDP请求均会被加速
+  int32 Type = 3; // 地址类型：
+  // IPv4: 1
+  // Domain: 3
+  // IPv6: 4
+  string Address = 4;
+  int32 Port = 5;
+}
+
+// Switch 规则开关
+message Switch {
+  int32 Type = 1;	// 规则类型：0系统默认规则，1自定义规则
+  int32 Enable = 2;	// 规则开关：0禁用，1启用
+}
+
+// RuleRequest 自定义规则请求
+message RuleRequest {
+  repeated Rule rules = 1;
+}
+// RuleRequest 自定义规则结果
+message RuleResponse {
+  repeated Rule failed = 1;
+}
+
+// QueryRequest 查询规则请求
+message QueryRequest {
+  int32 Type = 1;  // 要查询的规则类型：0系统默认规则，1自定义规则
+}
+// QueryResponse 查询规则结果
+message QueryResponse {
+  repeated Rule rules = 1;
+}
+
+// CustomSwitchRequest 规则开关控制请求
+message SwitchRequest {
+  repeated Switch switches = 1;
+}
+// CustomSwitchRequest 规则开关控制结果
+message SwitchResponse {
+  repeated Switch switches = 1;
+}
+
+service CustomRuleManagerService {
+  // 自定义规则增、删、查
+  rpc AddRules(RuleRequest) returns (RuleResponse) {}
+  rpc DeleteRules(RuleRequest) returns (RuleResponse) {}
+  rpc QueryRules(QueryRequest) returns (QueryResponse) {}
+
+  // 规则开关控制
+  rpc RuleSwitch(SwitchRequest) returns (SwitchResponse) {}
+}
